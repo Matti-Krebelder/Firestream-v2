@@ -1,6 +1,5 @@
 static/Media/*
 static/utility/youtube_links
-static/metadata/*
-static/metadata/Fulldata/*
+!static/Media/test.mp4
 !static/metadata/Fulldata
 Firestream v2.db
