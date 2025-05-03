@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fehler {{ errorcode }} - {{ panel_name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            /* Dark Mode als Standard */
+            --primary: #5865F2;
+            --google: #4285F4;
+            --accent: #FF4D4D;
+            --text: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --card-bg: rgba(30, 30, 30, 0.85);
+            --input-bg: rgba(50, 50, 50, 0.7);
+            --background: url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+            --background-color: #000;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            --border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            transition: background 0.5s ease, color 0.3s ease;
+        }
+        
+        body {
+            background: var(--background-color);
+            background: var(--background);
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 0;
+        }
+        
+        .error-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 500px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .error-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+            border: var(--border);
+        }
+        
+        .error-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            font-size: 48px;
+            box-shadow: 0 5px 15px rgba(255, 77, 77, 0.4);
+        }
+        
+        h1 {
+            color: var(--text);
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .error-code {
+            font-size: 72px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 10px;
+            line-height: 1;
+        }
+        
+        .error-message {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 5px;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 77, 77, 0.4);
+        }
+        
+        .btn-primary:hover {
+            background: #FF3333;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 77, 77, 0.6);
+        }
+        
+        .btn-secondary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4);
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.05);
+        }
+        
+        .btn i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            z-index: 10;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(0, 0, 0, 0.5);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        body.light-mode {
+            --text: #2C2F33;
+            --text-secondary: #777;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --input-bg: #FFFFFF;
+            --background-color: #f0f2f5;
+            --shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            --border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="dark-mode" onload="setBackground('{{ background }}')">
+    <button class="theme-toggle" id="themeToggle">
+        <i class="fas fa-sun"></i>
+    </button>
+    
+    <div class="error-container">
+        <div class="error-card">
+            <div class="error-icon">
+                {% if errorcode in [401, 403] %}
+                <i class="fas fa-lock"></i>
+                {% elif errorcode == 404 %}
+                <i class="fas fa-search"></i>
+                {% elif errorcode == 429 %}
+                <i class="fas fa-tachometer-alt"></i>
+                {% elif errorcode == 503 %}
+                <i class="fas fa-server"></i>
+                {% elif errorcode == 405 %}
+                <i class="fas fa-ban"></i>
+                {% elif errorcode == 450 %}
+                <i class="fas fa-user-slash"></i>
+                {% else %}
+                <i class="fas fa-exclamation-triangle"></i>
+                {% endif %}
+            </div>
+            
+            <div class="error-code">{{ errorcode }}</div>
+            
+            <h1>
+                {% if errorcode == 404 %}
+                Seite nicht gefunden
+                {% elif errorcode == 403 %}
+                Zugriff verweigert
+                {% elif errorcode == 401 %}
+                Nicht autorisiert
+                {% elif errorcode == 400 %}
+                Ungültige Anfrage
+                {% elif errorcode == 429 %}
+                Zu viele Anfragen
+                {% elif errorcode == 503 %}
+                Dienst nicht verfügbar
+                {% elif errorcode == 405 %}
+                Methode nicht erlaubt
+                {% elif errorcode == 450 %}
+                Registrierung deaktiviert
+                {% else %}
+                Ein Fehler ist aufgetreten
+                {% endif %}
+            </h1>
+            
+            <p class="error-message">
+                {% if errorcode == 404 %}
+                Die angeforderte Seite konnte nicht gefunden werden. Bitte überprüfen Sie die URL oder kehren Sie zur Startseite zurück.
+                {% elif errorcode == 403 %}
+                Sie haben keine Berechtigung, auf diese Ressource zuzugreifen.
+                {% elif errorcode == 401 %}
+                Sie müssen sich anmelden, um auf diese Ressource zugreifen zu können.
+                {% elif errorcode == 400 %}
+                Ihre Anfrage konnte nicht verarbeitet werden. Bitte überprüfen Sie die eingegebenen Daten.
+                {% elif errorcode == 429 %}
+                Sie haben zu viele Anfragen in kurzer Zeit gesendet. Bitte warten Sie einen Moment und versuchen Sie es erneut.
+                {% elif errorcode == 503 %}
+                Unser Server ist derzeit überlastet oder wird gewartet. Bitte versuchen Sie es später erneut.
+                {% elif errorcode == 405 %}
+                Die angeforderte Methode ist für diese Ressource nicht erlaubt.
+                {% elif errorcode == 450 %}
+                Die Registrierung ist derzeit deaktiviert. Bitte versuchen Sie es zu einem späteren Zeitpunkt erneut.
+                {% else %}
+                Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.
+                {% endif %}
+            </p>
+            
+            <div>
+                <a href="{{ url_for('index') }}" class="btn btn-primary">
+                    <i class="fas fa-home"></i> Zur Startseite
+                </a>
+                
+                {% if errorcode == 401 or errorcode == 403 %}
+                <a href="{{ url_for('login') }}" class="btn btn-secondary">
+                    <i class="fas fa-sign-in-alt"></i> Anmelden
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('light-mode');
+            
+            if (body.classList.contains('light-mode')) {
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            } else {
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+        });
+        
+        function setBackground(value = '') {
+            if (!value) {
+                document.documentElement.style.setProperty('--background', 
+                    'url("https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80") no-repeat center center fixed');
+                document.documentElement.style.setProperty('--background-color', '#000');
+            } else if (value.startsWith('http') || value.startsWith('/') || value.startsWith('../')) {
+                document.documentElement.style.setProperty('--background', `url("${value}") no-repeat center center fixed`);
+                document.documentElement.style.setProperty('--background-color', '#000');
+            } else {
+                document.documentElement.style.setProperty('--background', 'none');
+                document.documentElement.style.setProperty('--background-color', value);
+            }
+        }
+    </script>
+</body>
+</html>

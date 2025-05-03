@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <script>
+        setBackground('{{ background }}')
+    </script>
+        <script>
+            const themeToggle = document.getElementById('themeToggle');
+            const body = document.body;
+    
+            themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            
+            themeToggle.addEventListener('click', () => {
+                body.classList.toggle('light-mode');
+                
+                if (body.classList.contains('light-mode')) {
+                    themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                } else {
+                    themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                }
+            });
+            
+            function setBackground(value = '') {
+                if (!value) {
+                    // Standard-Hintergrundbild
+                    document.documentElement.style.setProperty('--background', 
+                        'url("") no-repeat center center fixed');
+                    document.documentElement.style.setProperty('--background-color', '#000');
+                } else if (value.startsWith('http') || value.startsWith('/') || value.startsWith('../')) {
+                    // Bild-URL
+                    document.documentElement.style.setProperty('--background', `url("${value}") no-repeat center center fixed`);
+                    document.documentElement.style.setProperty('--background-color', '#000');
+                } else {
+                    // Hex-Farbe
+                    document.documentElement.style.setProperty('--background', 'none');
+                    document.documentElement.style.setProperty('--background-color', value);
+                }
+            }
+    
+            document.querySelector('.btn-discord').addEventListener('click', function() {
+                window.location.href = 'https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&response_type=code&scope=identify%20username';
+            });
+            
+            document.querySelector('.btn-google').addEventListener('click', function() {
+                window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&response_type=code&scope=profile%20username';
+            });
+        </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ panel_name }} - Anmeldung</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            /* Dark Mode als Standard */
+            --primary: #5865F2;
+            --google: #4285F4;
+            --accent: #FF4D4D;
+            --text: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --card-bg: rgba(30, 30, 30, 0.85);
+            --input-bg: rgba(50, 50, 50, 0.7);
+            --background: url('') no-repeat center center fixed;
+            --background-color: #000;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            --border: 1px solid rgba(255, 255, 255, 0.05);
+            
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            transition: background 0.5s ease, color 0.3s ease;
+        }
+        
+        body {
+            background: var(--background-color);
+            background: var(--background);
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 0;
+        }
+        
+        .login-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 450px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .login-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+            border: var(--border);
+        }
+        
+        .logo {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent);
+            color: white;
+            border-radius: 12px;
+            font-size: 32px;
+            box-shadow: 0 5px 15px rgba(255, 77, 77, 0.4);
+            transform: rotate(15deg);
+            transition: transform 0.3s ease;
+        }
+        
+        .logo:hover {
+            transform: rotate(0deg) scale(1.1);
+        }
+        
+        h1 {
+            color: var(--text);
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        p.subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 0px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--input-bg);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+            color: var(--text);
+        }
+        
+        input:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.2);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 77, 77, 0.4);
+        }
+        
+        .btn-primary:hover {
+            background: #FF3333;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 77, 77, 0.6);
+        }
+        
+        .btn-discord {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4);
+        }
+        
+        .btn-google {
+            background: var(--google);
+            color: white;
+            box-shadow: 0 4px 15px rgba(66, 133, 244, 0.4);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.05);
+        }
+        
+        .btn i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: var(--text-secondary);
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid var(--text-secondary);
+            opacity: 0.2;
+        }
+        
+        .divider::before {
+            margin-right: 10px;
+        }
+        
+        .divider::after {
+            margin-left: 10px;
+        }
+        
+        .footer-text {
+            margin-top: 20px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .footer-text a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .footer-text a:hover {
+            text-decoration: underline;
+        }
+        
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            z-index: 10;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(0, 0, 0, 0.5);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        body.light-mode {
+            --text: #2C2F33;
+            --text-secondary: #777;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --input-bg: #FFFFFF;
+            --background-color: #f0f2f5;
+            --shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            --border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .alert{
+            color: var(--text);
+        }
+    </style>
+</head>
+<body class="dark-mode" onload="setBackground('{{ background }}')">
+    <button class="theme-toggle" id="themeToggle">
+        <i class="fas fa-sun"></i>
+    </button>
+    
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo">
+                <img src="{{ logo }}" width="50" height="50" alt="Logo">
+            </div>
+            <h1>{{ panel_name }}</h1>
+            <p class="subtitle">Regestrieren sie sich, um auf exklusive Inhalte zuzugreifen</p>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+            <form method="POST">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" name="username" id="username" placeholder="Max Musterman" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="username">E-mail</label>
+                    <input type="email" name="email" placeholder="mail@example.de" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Passwort</label>
+                    <input type="password" name="password" placeholder="••••••••" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-play"></i> Streaming starten
+                </button>
+            </form>
+            
+            <div class="divider">ODER FORTSETZEN MIT</div>
+            
+            <button class="btn btn-discord">
+                <i class="fab fa-discord"></i>
+                Discord
+            </button>
+            
+            <button class="btn btn-google">
+                <i class="fab fa-google"></i>
+                Google
+            </button>
+            
+            <p class="footer-text">
+                Hast du schon ein {{ panel_name }} Account? <a href="{{ url_for('login') }}">Jetzt Einloggen</a><br>
+                <a href="#">Passwort vergessen?</a>
+            </p>
+        </div>
+    </div>
+
+</body>
+</html>
