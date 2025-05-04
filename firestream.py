@@ -126,6 +126,33 @@ def get_series():
     result = [f for f in os.listdir(MEDIA_DIR) if os.path.isdir(os.path.join(MEDIA_DIR, f))]
     return(result)
 
+def get_series_details(series_name):
+    """Get details about seasons and episodes for a series"""
+    series_path = os.path.join(MEDIA_DIR, series_name)
+    seasons = {}
+    
+    # Check if the series directory exists
+    if not os.path.isdir(series_path):
+        return {}
+    
+    # Get all seasons (directories within the series directory)
+    season_dirs = [d for d in os.listdir(series_path) if os.path.isdir(os.path.join(series_path, d))]
+    
+    for season_dir in season_dirs:
+        season_path = os.path.join(series_path, season_dir)
+        episodes = [f for f in os.listdir(season_path) if os.path.isfile(os.path.join(season_path, f)) and f.endswith('.mp4')]
+        
+        # Sort episodes naturally (so episode 2 comes before episode 10)
+        episodes.sort(key=lambda x: int(re.search(r'\d+', x).group()) if re.search(r'\d+', x) else 0)
+        
+        # Add the season to our dictionary
+        seasons[season_dir] = episodes
+    
+    # Sort seasons by their numerical value
+    sorted_seasons = dict(sorted(seasons.items(), key=lambda x: int(re.search(r'\d+', x[0]).group()) if re.search(r'\d+', x[0]) else 0))
+    
+    return sorted_seasons
+
 def get_metafiles():
     result = [f for f in os.listdir(METADATA_DIR) if os.path.isfile(os.path.join(METADATA_DIR, f))]
     return(result)
@@ -160,8 +187,11 @@ def get_movie_list():
         metadata = get_metadata(serie)
         trailer = get_trailer_embed(serie)
         metadata['trailer'] = trailer["url"]
-        metadata['url'] = f'/static/{serie}/'
+        metadata['url'] = f'{serie}'
+        metadata['is_series'] = True
+        metadata['seasons'] = get_series_details(serie)
         merged_data["series"].append(metadata)
+        
     for movie in movies:
         formatted = movie[:-4]
         if "." in formatted:
@@ -171,6 +201,7 @@ def get_movie_list():
             trailer = get_trailer_embed(formatted)
             metadata['trailer'] = trailer["url"]
             metadata['url'] = f'{formatted}'
+            metadata['is_series'] = False
             merged_data["movies"].append(metadata)
 
     json_data = json.dumps(merged_data)
@@ -309,13 +340,37 @@ def get_genres():
 def get_trailer(moviename):
     return get_trailer_embed(moviename)
 
+@app.route('/API/GET/SERIES/<series_name>')
+def get_series_info(series_name):
+    """API endpoint to get detailed series information"""
+    seasons = get_series_details(series_name)
+    metadata = get_metadata(series_name)
+    
+    response = {
+        "metadata": metadata,
+        "seasons": seasons
+    }
+    
+    return jsonify(response)
 
 @app.route('/watch/<moviename>')
 def watch(moviename):
     return render_template("watch.html", title=moviename, panel_name=PANEL_NAME, serverip=SERVER_IP, port=SERVER_PORT)
 
-
-
+@app.route('/watch-series/<series>/<season>/<episode>')
+def watch_series(series, season, episode):
+    """Route for watching a specific episode of a series"""
+    episode_path = f"{series}/{season}/{episode}"
+    return render_template("watch.html", 
+                          title=f"{series} - {season} - {episode}",
+                          panel_name=PANEL_NAME,
+                          serverip=SERVER_IP,
+                          port=SERVER_PORT,
+                          series=series,
+                          season=season,
+                          episode=episode,
+                          is_series=True
+                          )
 
 if __name__ == "__main__":
    app.run(debug=True, host="0.0.0.0", port=SERVER_PORT)

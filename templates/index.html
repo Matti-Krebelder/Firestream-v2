@@ -833,6 +833,147 @@
             border-radius: 8px;
         }
         
+        /* Series styles - Season selector */
+        .season-selector {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .season-dropdown {
+            background-color: var(--gray-dark);
+            color: var(--light);
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: var(--transition);
+            border: 1px solid var(--gray);
+        }
+        
+        .season-dropdown:hover {
+            background-color: rgba(60, 60, 60, 0.8);
+        }
+        
+        .season-dropdown i {
+            margin-left: 10px;
+            transition: var(--transition);
+        }
+        
+        .season-dropdown.active i {
+            transform: rotate(180deg);
+        }
+        
+        .season-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background-color: var(--gray-dark);
+            border-radius: 5px;
+            z-index: 10;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            margin-top: 5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .season-selector.active .season-options {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .season-option {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .season-option:hover, .season-option.selected {
+            background-color: var(--primary-dark);
+        }
+        
+        /* Episode list */
+        .episodes-container {
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .episodes-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .episodes-container::-webkit-scrollbar-track {
+            background: var(--gray-dark);
+            border-radius: 10px;
+        }
+        
+        .episodes-container::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+        
+        .episode-item {
+            display: flex;
+            padding: 15px;
+            background-color: rgba(40, 40, 40, 0.6);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 3px solid transparent;
+        }
+        
+        .episode-item:hover {
+            background-color: rgba(60, 60, 60, 0.8);
+            border-left-color: var(--primary);
+            transform: translateX(5px);
+        }
+        
+        .episode-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-right: 15px;
+            min-width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .episode-details {
+            flex: 1;
+        }
+        
+        .episode-title {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .episode-meta {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .series-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--primary);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            z-index: 5;
+        }
+        
         @media (max-width: 768px) {
             .trailer-iframe {
                 height: 300px;
@@ -840,6 +981,10 @@
             
             .trailer-modal-content {
                 width: 95%;
+            }
+            
+            .episodes-container {
+                max-height: 300px;
             }
         }
     </style>
@@ -915,7 +1060,25 @@
                 <div class="modal-genres" id="modal-genres">
                     <!-- Genres will be added here -->
                 </div>
-                <div class="modal-buttons">
+                
+                <!-- Series specific content -->
+                <div id="series-content" style="display: none;">
+                    <div class="season-selector" id="season-selector">
+                        <div class="season-dropdown" id="season-dropdown">
+                            <span id="selected-season">Select Season</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="season-options" id="season-options">
+                            <!-- Season options will be added here -->
+                        </div>
+                    </div>
+                    
+                    <div class="episodes-container" id="episodes-container">
+                        <!-- Episodes will be added here -->
+                    </div>
+                </div>
+                
+                <div class="modal-buttons" id="modal-buttons">
                     <button class="btn btn-primary">
                         <i class="fas fa-play"></i> Play
                     </button>
@@ -958,13 +1121,13 @@
         </div>
         <p class="copyright">© 2025 FireStream v2. All Rights Reserved.</p>
     </footer>
-    <h1>Debug {{ username }}</h1>
 
     <script>
         // Global variables
         let genresMap = {};
         let featuredContent = null;
-        let allMovies = []; // Neue Variable für alle Filme
+        let allMovies = []; // All movies
+        let allSeries = []; // All series
 
         // DOM Elements
         const heroSection = document.getElementById('hero');
@@ -984,10 +1147,21 @@
         const searchInput = searchBox.querySelector('input');
         const scrollTopBtn = document.getElementById('scrollTop');
         
-        // Neue DOM Elemente für Trailer
+        // Series elements
+        const seriesContent = document.getElementById('series-content');
+        const seasonSelector = document.getElementById('season-selector');
+        const seasonDropdown = document.getElementById('season-dropdown');
+        const selectedSeason = document.getElementById('selected-season');
+        const seasonOptions = document.getElementById('season-options');
+        const episodesContainer = document.getElementById('episodes-container');
+        
+        // Trailer elements
         const trailerModal = document.getElementById('trailerModal');
         const trailerClose = document.getElementById('trailerClose');
         const trailerIframe = document.getElementById('trailerIframe');
+
+        // Current selected content
+        let currentContent = null;
 
         // Initialize the app
         document.addEventListener('DOMContentLoaded', () => {
@@ -1022,19 +1196,34 @@
                 const response = await fetch('{{ serverip }}:{{ port }}/API/GET/MOVIELIST');
                 const data = await response.json();
                 
-                // Speichere alle Filme für zufällige Auswahl
+                // Store all movies and series
                 allMovies = data.movies;
+                allSeries = data.series;
                 
-                // Set featured content (zufälliger Film)
-                if (data.movies.length > 0) {
-                    const randomIndex = Math.floor(Math.random() * data.movies.length);
-                    featuredContent = data.movies[randomIndex];
+                // Set featured content (random movie or series)
+                const allContent = [...allMovies, ...allSeries];
+                if (allContent.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * allContent.length);
+                    featuredContent = allContent[randomIndex];
                     updateHeroSection(featuredContent);
                     
-                    // Play-Button Event für Hero Section hinzufügen
+                    // Play-Button Event for Hero Section
                     const heroPlayBtn = document.querySelector('.hero-buttons .btn-primary');
                     heroPlayBtn.addEventListener('click', () => {
-                        window.location.href = `/watch/${encodeURIComponent(featuredContent.url)}`;
+                        if (featuredContent.is_series) {
+                            // Get first season and episode
+                            const firstSeason = Object.keys(featuredContent.seasons)[0];
+                            const firstEpisode = featuredContent.seasons[firstSeason][0];
+                            window.location.href = `/watch-series/${encodeURIComponent(featuredContent.url)}/${encodeURIComponent(firstSeason)}/${encodeURIComponent(firstEpisode)}`;
+                        } else {
+                            window.location.href = `/watch/${encodeURIComponent(featuredContent.url)}`;
+                        }
+                    });
+                    
+                    // More Info button for Hero Section
+                    const heroInfoBtn = document.querySelector('.hero-buttons .btn-secondary');
+                    heroInfoBtn.addEventListener('click', () => {
+                        showModal(featuredContent);
                     });
                 }
                 
@@ -1111,6 +1300,14 @@
             img.alt = item.title;
             img.loading = "lazy";
             
+            // Add series badge if it's a series
+            if (item.is_series) {
+                const badge = document.createElement('div');
+                badge.className = 'series-badge';
+                badge.innerHTML = `<i class="fas fa-tv"></i> Series`;
+                card.appendChild(badge);
+            }
+            
             // Create overlay with details
             const overlay = document.createElement('div');
             overlay.className = 'card-overlay';
@@ -1162,6 +1359,9 @@
 
         // Show modal with content details
         function showModal(content) {
+            // Store current content for reference
+            currentContent = content;
+            
             modalTitle.textContent = content.title;
             modalDescription.textContent = content.overview;
             modalRating.innerHTML = `<i class="fas fa-star"></i> ${content.vote_average.toFixed(1)}`;
@@ -1189,8 +1389,25 @@
                 });
             }
             
+            // Handle series content
+            if (content.is_series) {
+                seriesContent.style.display = 'block';
+                populateSeasonSelector(content);
+            } else {
+                seriesContent.style.display = 'none';
+            }
+            
             // Update modal buttons
-            const modalButtons = document.querySelector('.modal-buttons');
+            updateModalButtons(content);
+            
+            // Show modal
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Update modal buttons based on content type
+        function updateModalButtons(content) {
+            const modalButtons = document.getElementById('modal-buttons');
             modalButtons.innerHTML = '';
             
             // Play Button
@@ -1198,10 +1415,20 @@
             playBtn.className = 'btn btn-primary';
             playBtn.innerHTML = '<i class="fas fa-play"></i> Play';
             playBtn.addEventListener('click', () => {
-                window.location.href = `/watch/${encodeURIComponent(content.title)}`;
+                if (content.is_series) {
+                    // Get first season and episode or currently selected
+                    let season = selectedSeason.getAttribute('data-season-id');
+                    if (!season) {
+                        season = Object.keys(content.seasons)[0];
+                    }
+                    const episode = content.seasons[season][0];
+                    window.location.href = `/watch-series/${encodeURIComponent(content.url)}/${encodeURIComponent(season)}/${encodeURIComponent(episode)}`;
+                } else {
+                    window.location.href = `/watch/${encodeURIComponent(content.url)}`;
+                }
             });
             
-            // Trailer Button (wenn verfügbar)
+            // Trailer Button (if available)
             if (content.trailer) {
                 const trailerBtn = document.createElement('button');
                 trailerBtn.className = 'btn btn-secondary';
@@ -1216,18 +1443,113 @@
             const listBtn = document.createElement('button');
             listBtn.className = 'btn btn-secondary';
             listBtn.innerHTML = '<i class="fas fa-plus"></i> My List';
-            modalButtons.appendChild(listBtn);
             
             modalButtons.appendChild(playBtn);
+            modalButtons.appendChild(listBtn);
+        }
+        
+        // Populate season selector for series
+        function populateSeasonSelector(series) {
+            if (!series.seasons || Object.keys(series.seasons).length === 0) {
+                seriesContent.style.display = 'none';
+                return;
+            }
             
-            // Show modal
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
+            // Reset selector
+            seasonOptions.innerHTML = '';
+            selectedSeason.textContent = 'Select Season';
+            selectedSeason.removeAttribute('data-season-id');
+            episodesContainer.innerHTML = '';
+            
+            // Add each season to options
+            Object.keys(series.seasons).forEach((seasonId, index) => {
+                const option = document.createElement('div');
+                option.className = 'season-option';
+                option.textContent = `Season ${extractSeasonNumber(seasonId)}`;
+                option.setAttribute('data-season-id', seasonId);
+                
+                option.addEventListener('click', () => {
+                    // Update selected season
+                    selectedSeason.textContent = option.textContent;
+                    selectedSeason.setAttribute('data-season-id', seasonId);
+                    
+                    // Mark as selected
+                    document.querySelectorAll('.season-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    option.classList.add('selected');
+                    
+                    // Close dropdown
+                    seasonSelector.classList.remove('active');
+                    
+                    // Load episodes
+                    loadEpisodes(series, seasonId);
+                });
+                
+                seasonOptions.appendChild(option);
+                
+                // Auto-select first season
+                if (index === 0) {
+                    option.click();
+                }
+            });
+        }
+        
+        // Extract season number from directory name
+        function extractSeasonNumber(seasonDir) {
+            const match = seasonDir.match(/\d+/);
+            return match ? match[0] : seasonDir;
+        }
+        
+        // Extract episode number from filename
+        function extractEpisodeNumber(episodeFile) {
+            const match = episodeFile.match(/\d+/);
+            return match ? match[0] : episodeFile.replace('.mp4', '');
+        }
+        
+        // Load episodes for selected season
+        function loadEpisodes(series, seasonId) {
+            const episodes = series.seasons[seasonId];
+            episodesContainer.innerHTML = '';
+            
+            episodes.forEach((episode, index) => {
+                const episodeItem = document.createElement('div');
+                episodeItem.className = 'episode-item';
+                
+                const episodeNum = extractEpisodeNumber(episode);
+                
+                const numberEl = document.createElement('div');
+                numberEl.className = 'episode-number';
+                numberEl.textContent = episodeNum;
+                
+                const detailsEl = document.createElement('div');
+                detailsEl.className = 'episode-details';
+                
+                const titleEl = document.createElement('div');
+                titleEl.className = 'episode-title';
+                titleEl.textContent = `Episode ${episodeNum}`;
+                
+                const metaEl = document.createElement('div');
+                metaEl.className = 'episode-meta';
+                
+                detailsEl.appendChild(titleEl);
+                detailsEl.appendChild(metaEl);
+                
+                episodeItem.appendChild(numberEl);
+                episodeItem.appendChild(detailsEl);
+                
+                // Click to play episode
+                episodeItem.addEventListener('click', () => {
+                    window.location.href = `/watch-series/${encodeURIComponent(series.url)}/${encodeURIComponent(seasonId)}/${encodeURIComponent(episode)}`;
+                });
+                
+                episodesContainer.appendChild(episodeItem);
+            });
         }
         
         // Show trailer in modal
         function showTrailer(trailerUrl) {
-            // Extrahiere die Video-ID aus der YouTube-URL
+            // Extract video ID from YouTube URL
             let videoId = '';
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
             const match = trailerUrl.match(regExp);
@@ -1268,6 +1590,20 @@
             trailerModal.addEventListener('click', (e) => {
                 if (e.target === trailerModal) {
                     closeTrailerModal();
+                }
+            });
+            
+            // Season dropdown toggle
+            seasonDropdown.addEventListener('click', () => {
+                seasonSelector.classList.toggle('active');
+                seasonDropdown.classList.toggle('active');
+            });
+            
+            // Close season dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!seasonSelector.contains(e.target)) {
+                    seasonSelector.classList.remove('active');
+                    seasonDropdown.classList.remove('active');
                 }
             });
             
@@ -1315,11 +1651,35 @@
         function performSearch(query) {
             if (query.trim() === '') return;
             
-            // In a real app, you would make an API call here
-            console.log('Searching for:', query);
+            // Filter movies and series by title
+            const normalizedQuery = query.toLowerCase();
+            const filteredMovies = allMovies.filter(
+                movie => movie.title.toLowerCase().includes(normalizedQuery)
+            );
+            const filteredSeries = allSeries.filter(
+                series => series.title.toLowerCase().includes(normalizedQuery)
+            );
             
-            // For demo purposes, just show an alert
-            alert(`Search functionality would look for: ${query}`);
+            // Display results
+            contentContainer.innerHTML = '';
+            
+            if (filteredMovies.length === 0 && filteredSeries.length === 0) {
+                contentContainer.innerHTML = 
+                    `<div class="content-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-search"></i> No results found for "${query}"
+                        </h2>
+                        <p style="padding: 20px 0;">Try different keywords or browse our categories.</p>
+                    </div>`;
+            } else {
+                if (filteredMovies.length > 0) {
+                    createSection(`Search Results: Movies (${filteredMovies.length})`, filteredMovies);
+                }
+                
+                if (filteredSeries.length > 0) {
+                    createSection(`Search Results: Series (${filteredSeries.length})`, filteredSeries);
+                }
+            }
             
             // Clear the search box
             searchInput.value = '';
