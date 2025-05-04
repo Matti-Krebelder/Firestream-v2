@@ -160,7 +160,7 @@ def get_movie_list():
         metadata = get_metadata(serie)
         trailer = get_trailer_embed(serie)
         metadata['trailer'] = trailer["url"]
-        metadata['url'] = f'{SERVER_IP}:{SERVER_PORT}/static/{serie}/'
+        metadata['url'] = f'/static/{serie}/'
         merged_data["series"].append(metadata)
     for movie in movies:
         formatted = movie[:-4]
@@ -170,7 +170,7 @@ def get_movie_list():
             metadata = get_metadata(formatted)
             trailer = get_trailer_embed(formatted)
             metadata['trailer'] = trailer["url"]
-            metadata['url'] = f'{SERVER_IP}:{SERVER_PORT}/static/{movie}.mp4'
+            metadata['url'] = f'/static/{movie}.mp4'
             merged_data["movies"].append(metadata)
 
     json_data = json.dumps(merged_data)
