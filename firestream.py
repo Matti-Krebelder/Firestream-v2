@@ -170,7 +170,7 @@ def get_movie_list():
             metadata = get_metadata(formatted)
             trailer = get_trailer_embed(formatted)
             metadata['trailer'] = trailer["url"]
-            metadata['url'] = f'/static/{movie}.mp4'
+            metadata['url'] = f'{formatted}'
             merged_data["movies"].append(metadata)
 
     json_data = json.dumps(merged_data)
