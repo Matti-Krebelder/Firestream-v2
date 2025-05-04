@@ -43,7 +43,7 @@ app.secret_key = 'sduj23hj89h9ziuhT6tgizugh9'
 from flask_cors import CORS
 CORS(app)
 
-REGISTRATION = 1 # Enable / Disable Registration 0 = Disable, 1 = Enable
+REGISTRATION = 0 # Enable / Disable Registration 0 = Disable, 1 = Enable
 LOGO_SRC = '../static/utility/images/logo.png'
 MEDIA_DIR = "./static/Media/"
 UPLOAD_DIR = "./static/Uploads/"
@@ -56,7 +56,7 @@ SERVER_PORT = "5000" # Standard is 80 or 8080
 SERVER_IP = "http://127.0.0.1" # Please include http:// / https:// enter server ip or if you have the domain :)
 PANEL_NAME = "Firestream v2" # come on! you can do it think a name on your own.
 DATABASE = f"{PANEL_NAME}.db" # you can change it how ever you like :)
-BACKGROUND_DESIGN = "https://wallpapercave.com/uwp/uwp4735911.jpeg" # enter any background image you like
+BACKGROUND_DESIGN = "https://repository-images.githubusercontent.com/299409710/b42f7780-0fe1-11eb-8460-e459acd20fb4" # enter any background image you like
 
 
 
