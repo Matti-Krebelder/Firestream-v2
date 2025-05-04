@@ -157,21 +157,30 @@ def get_metafiles():
     result = [f for f in os.listdir(METADATA_DIR) if os.path.isfile(os.path.join(METADATA_DIR, f))]
     return(result)
 
-def get_metadata(name):
+def get_metadata(name, is_series=False):
     if(name + ".json" in get_metafiles()):
         print(f"{name} Schon vorhanden Pulle Metadaten Lokal...")
         with open(f"{METADATA_DIR}{name}.json", "r") as file:
             data = json.load(file)
         return(data)
     else:
-        meta = requests.get(f"https://api.themoviedb.org/3/search/movie?api_key={THE_MOVIE_DB_KEY}&query={name}")
+        # Use different endpoint based on content type
+        if is_series:
+            meta = requests.get(f"https://api.themoviedb.org/3/search/tv?api_key={THE_MOVIE_DB_KEY}&query={name}")
+        else:
+            meta = requests.get(f"https://api.themoviedb.org/3/search/movie?api_key={THE_MOVIE_DB_KEY}&query={name}")
+        
         obj = meta.json()
         ranked = (obj["results"][0])
+        
+        # Save metadata to file
         with open(f"{METADATA_DIR}{name}.json", "w") as file:
             json.dump(ranked, file)
 
+        # Save full data for reference
         with open(f"{METADATA_DIR}Fulldata/{name}.json", "w") as f:
             json.dump(meta.json(), f)
+            
         return(ranked)
     
 def get_movie_list():
@@ -184,7 +193,7 @@ def get_movie_list():
     }
 
     for serie in Series:
-        metadata = get_metadata(serie)
+        metadata = get_metadata(serie, is_series=True)
         trailer = get_trailer_embed(serie)
         metadata['trailer'] = trailer["url"]
         metadata['url'] = f'{serie}'
@@ -197,7 +206,7 @@ def get_movie_list():
         if "." in formatted:
             print(f"Error Your File {movie} is not an MP4!")
         else:
-            metadata = get_metadata(formatted)
+            metadata = get_metadata(formatted, is_series=False)
             trailer = get_trailer_embed(formatted)
             metadata['trailer'] = trailer["url"]
             metadata['url'] = f'{formatted}'
@@ -344,7 +353,7 @@ def get_trailer(moviename):
 def get_series_info(series_name):
     """API endpoint to get detailed series information"""
     seasons = get_series_details(series_name)
-    metadata = get_metadata(series_name)
+    metadata = get_metadata(series_name, is_series=True)
     
     response = {
         "metadata": metadata,
