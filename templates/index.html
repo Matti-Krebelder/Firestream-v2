@@ -1004,7 +1004,7 @@
         // Fetch genres from API
         async function fetchGenres() {
             try {
-                const response = await fetch('http://127.0.0.1:5000/API/GET/GENRES');
+                const response = await fetch('{{ serverip }}:{{ port }}/API/GET/GENRES');
                 const data = await response.json();
                 
                 // Create a map of genre IDs to names
@@ -1019,7 +1019,7 @@
         // Fetch content from API
         async function fetchContent() {
             try {
-                const response = await fetch('http://127.0.0.1:5000/API/GET/MOVIELIST');
+                const response = await fetch('{{ serverip }}:{{ port }}/API/GET/MOVIELIST');
                 const data = await response.json();
                 
                 // Speichere alle Filme für zufällige Auswahl
