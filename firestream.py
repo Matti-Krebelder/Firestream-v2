@@ -239,6 +239,8 @@ def index():
                              created_at=user['created_at'],
                              panel_name=PANEL_NAME,
                              logo=LOGO_SRC,
+                             serverip=SERVER_IP,
+                             port=SERVER_PORT
                              
                              )
     return redirect(url_for('login'))
